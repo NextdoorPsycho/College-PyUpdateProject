@@ -1,14 +1,9 @@
-import random
-import time
 import Game
 import pygwidgets
-
-
 class Box:
 
     def __init__(self, window, x, y):
         self.window = window
-
         self.nPoints = 1
         # print(Game.MATCHES)
         # set loc
@@ -33,11 +28,10 @@ class Box:
         if self.button.handleEvent(event):
             f = 1
             if f == 1:
-
                 self.button.disable()
                 f = 0
             if f == 0:
-                self.button = pygwidgets.TextButton(self.window, (self.x, self.y), ""+str(self.iterator), fontSize=70 )
+                self.button = pygwidgets.TextButton(self.window, (self.x, self.y), "" + str(self.iterator), fontSize=70)
                 self.button.disable()
                 f = 1
             return True

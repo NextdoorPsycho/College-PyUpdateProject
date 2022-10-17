@@ -1,5 +1,5 @@
+import random
 import pygame
-
 from Box import *
 
 N_BOXES = 16
