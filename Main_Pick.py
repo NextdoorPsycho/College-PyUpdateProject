@@ -1,6 +1,7 @@
 import sys
-from pygame.locals import *
-from Game import *
+import pygame
+from pygame import QUIT
+from Game import Game
 
 WINDOW_WIDTH = 470
 WINDOW_HEIGHT = 500
@@ -16,7 +17,6 @@ bg_img = pygame.transform.scale(bg_img, (WINDOW_WIDTH, WINDOW_HEIGHT))
 audio = pygame.mixer.Sound('assets/music.mp3')
 pygame.mixer.music.load('assets/music.mp3')
 
-win = pygame.mixer.Sound('assets/win.mp3')
 wrong = pygame.mixer.Sound('assets/wrong.mp3')
 click = pygame.mixer.Sound('assets/click.mp3')
 audio.play()
