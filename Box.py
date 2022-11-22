@@ -20,7 +20,7 @@ class Box:
                 self.button.disable()
                 f = 0
             if f == 0:
-                self.button = pygwidgets.TextButton(self.window, (self.x, self.y), ""+str(self.iterator), fontSize=70)
+                self.button = pygwidgets.TextButton(self.window, (self.x, self.y), "" + str(self.iterator), fontSize=70)
                 self.button.disable()
             return True
 

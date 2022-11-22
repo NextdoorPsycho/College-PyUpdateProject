@@ -1,6 +1,7 @@
 import random
 
 import pygame
+
 import pygwidgets
 from Box import Start, Box, Reset
 
@@ -10,6 +11,7 @@ SELECTIVE_TWO = '2'
 MATCHES = [1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8]
 POINTS = 0
 SCORE = 0
+
 
 # noinspection PyAttributeOutsideInit
 class Game:

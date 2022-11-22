@@ -1,243 +1,3 @@
-"""
-pygwidgets is a collection of user interface widgets (e.g., buttons) written in Python for use with Pygame.
-
-pygwidgets is pronounced as: "pig wijits".
-
-Developed by Irv Kalb  -    Irv at furrypants.com
-
-Full documentation at:   https://pygwidgets.readthedocs.io/en/latest/
-
-
-
-Design notes:
-
-    The way that you use objects instantiated from all these classes is very similar:
-    
-        1. Instantiate before the big loop starts.
-         
-        2. Call the object's "handleEvent" method every time through the event loop,
-                passing in the current event (from pygame).
-           It  will return False most of the time,
-           but returns True when something exciting happens (for example, user clicks on a button).
-         
-        3. Call the "draw" method (with no arguments) to draw each widget.
-         
-    I have tried to make consistent keyword parameter names across classes.
-
-    I have also tried to make consistent names for methods across classes
-    For example "getValue" and "setValue" are available in most classes.
-
-    When instantiating objects from these classes, you typically only need to specify a few parameters.
-    The rest will use reasonable default values, but you can change them using keyword arguments.
-
-
-Each of the button widgets comes in two varieties:
-
-    Text widget that is drawn using the Python's drawing tools.
-
-    Custom widget where the programmer supplies their own graphics for the widget.
-
-For example, "TextButton" below builds a button from a user-supplied text string,
-whereas "CustomButton" is built to work with user-supplied custom images.
-
-
-
-pygwidgets contains the following classes:
-
-- TextButton - a button built on the fly from a user-supplied text. f
-- TextCheckBox - a checkbox built on the fly from a user-supplied text.
-- CustomCheckBox - a checkbox where you use your images
-
-- TextRadioButton - a radio button built on the fly from a user-supplied text.
-- CustomRadioButton - a radio button where you use your images
-
-- DisplayText - a text field used just for output (display)
-
-- InputText - a text field intended for user input
-
-- Dragger - gives the ability to drag any screen object with the mouse
-
-- Image - simple display of an image at a location
-
-- ImageCollection - A collection of Images, any of which can be shown at one time
-
-- Animation - display a set number of images, each at its own rate
-- SpriteSheetAnimation - display an animation directly from a sprite sheet
-  (one file made up of many images)
-
-
-Many widgets also allow the use of a callBack (a function or method to be called when an action happens)
-    Any widget that uses a callBack can be set up like this:
-          def <callBackMethodName>(self, nickName)
-    When the appropriate action happens, the callBack method will be called and the nickName will be passed
-    If you don't need the nickname, you can just ignore that parameter
- 
-************************************************************************************************
-
-Simplified BSD License:
-
-Copyright 2017 Irv Kalb. All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
-
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
-
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-      of conditions and the following disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY Irv Kalb ''AS IS'' AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Irv Kalb OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those of the
-authors and should not be interpreted as representing official policies, either expressed
-or implied, of Irv Kalb.
-
-******************************************************************************************
-
-
-
-History:
-
-5/22/21  Version 1.0.3
-        Added __all__ to define what gets imported when you import *
-        Changed SpriteSheetAnimation to calculate number of columns in SpriteSheet.
-        Added ImageCollection.getCurrentKey()
-        Use abc module to implement abstract classes and abstract methods
-        Added pygwidgets font manager to load and remember fonts
-        Use pygame.custom_event to generate custom event (pygame 2.0). Replaces pygame.USEREVENT
-        Added code to make callBack's work in Button, CheckBox, and RadioButtons.
-        Added mew method render() to DisplayText to make this class more inheritable
-        Added specific exceptions when a call raises exception
-        Animation - Added getRect (since different images can be different sizes)
-        Added _loadImageAndConvert for loading and converting alpha of all images
-        Changes to InputText:
-            Added giveFocus() to programmatically give focus to one field
-            Added keepFocusOnSubmit keyword param, to allow field to keep focus programmatically
-            Added setNextFieldOnTab - to allow tabbing through InputText fields
-
-5/26/20  Version 1.0.2
-        Rewrote PygButton to be a state machine - much cleaner
-        Added __version__  and function  getVersion()
-
-4/26/20  Minor documentation changes for handleEvent in a few classes
-
-Version 1.0     01/13/20
-
-12/19  Added:  moveX, moveY, moveXY, overlapsRect, overlapsObject to base PygWidget
-In Animations classes changed .play() to .start() (for consistency with Timer objects)
-Changed names of internal Animation states.
-
-5/19  Added ability in ImageCollection to specify a loaded image (alternative for giving path to image)
-    Fixed conflict with "replace" in Image and ImageCollection classes.
-
-4/19  Added the ability for Image and ImageCollection objects to use the empty string
-    to indicate that the object should show no image.
-    Added Image and ImageCollection to recognize clicks by adding handleEvents method
-
-7/18   Added ability for all appropriate widgets to allow an optional callBack
-    Changed "textButton" in Button, CheckBox, and RadioButton to "text"
-    Change "label" to "nickname" in all widgets.
-
-
-6/18   Added Animation and SpriteSheetAnimation
-
-6/18   Added getRect (removed copy from Dragger and Image)
-    In TextButton, changed param 'label' to 'text' to avoid confusion with superclass
-
-5/18   Added Image object.  Allows you to set a loc and window at the instantiation.
-    That way, all you need to do to show the image is to call its draw method.
-
-1/18   Changed Button->TexButton, CheckBox->TextCheckBox, RadioButton->TextRadioButton
-    Changed SetVisible->show, setInVisible->hide
-    Created PygWidget base class, and have all classes inherit from it
-    initializes and contains: nickname, visible, isEnabled
-
-11/17  Added Dragger, changed main "surface" to "window"  Irv Kalb
-    Changed 'caption' in the Button class to 'nickname', made it a positional parameter
-    (instead of optional keyword param)
-    Added 'nickname' and getNickname method to most classes
-    Modified Button to grow to fit very long nicknames - defaults to minimum of 100 pixels.
-    Added setPos to DisplayText 
-
-4/17  Version 1.1 by Irv Kalb
-    Renamed a few classes and methods, simplified the return of handleEvent in all classes
-        to be just True or False.
-
-3/17  Version 1.0 by Irv Kalb
-    Combined Buttons, CheckBoxes, RadioButtons, and Text into a single file
-
-1/17  Major rewrite by Irv Kalb
-    Split the code into Button class and CustomButton class (with a common superclass: PygWidgetsButton).
-    Added appropriate parameters with reasonable defaults so each is easier to instantiate.
-    Added soundOnClick
-
-12/16  Modified by Irv Kalb
-     Add a default surface, so it is passed in once at creation.
-     That way, calls to draw do not need to pass it in again.
-
-8/14   Modified by Irv Kalb
-     Added a disabled state to all buttons
-     
-The code of the TextButton and CustomButton classes are based on the original "pygbutton"
-code developed by Al Sweigart.  I kept the good stuff (and there was plenty of that!),
-added features (most importantly a disabled state), and removed some features that
-I didn't feel were needed for the students in my classes.
-
-*****************************************************************************************
-
-
-"""
-
-"""
-ORIGINAL COMMENTS FROM AL SWEIGART ABOUT PYGBUTTON:
-
-PygButton v0.1.0
-
-PygButton (pronounced "pig button") is a module that implements UI buttons for Pygame.
-PygButton requires Pygame to be installed. Pygame can be downloaded from http://pygame.org
-PygButton was developed by Al Sweigart (al@inventwithpython.com)
-https://github.com/asweigart/pygbutton
-
-
-Simplified BSD License:
-
-Copyright 2012 Al Sweigart. All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
-
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
-
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-      of conditions and the following disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY Al Sweigart ''AS IS'' AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Al Sweigart OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those of the
-authors and should not be interpreted as representing official policies, either expressed
-or implied, of Al Sweigart.
-"""
-
 __all__ = [
     'Animation',
     'CustomButton',
@@ -272,11 +32,11 @@ __all__ = [
     'TextRadioButton',
 ]
 
-import pygame
 import time
-from pygame.locals import *
 from abc import ABC, abstractmethod
 
+import pygame
+from pygame.locals import *
 
 __version__ = "1.0.3"
 
@@ -291,16 +51,16 @@ PYGWIDGETS_DISABLED_GRAY = (220, 220, 220)
 PYGWIDGETS_ANIMATION_PLAYING = 'playing'
 PYGWIDGETS_ANIMATION_PAUSED = 'paused'
 PYGWIDGETS_ANIMATION_STOPPED = 'stopped'
-if pygame.version.vernum == 1:    # gives a tuple like (2, 0, 1), check for version 1
+if pygame.version.vernum == 1:  # gives a tuple like (2, 0, 1), check for version 1
     PYGWIDGETS_CUSTOM_EVENT = pygame.USEREVENT  # older approach
 else:  # pygame version 2 and later
-    PYGWIDGETS_CUSTOM_EVENT = pygame.event.custom_type() # new in pygame 2.0
-
+    PYGWIDGETS_CUSTOM_EVENT = pygame.event.custom_type()  # new in pygame 2.0
 
 
 def getVersion():
     """Returns the current version number of the pygwidgets package"""
     return __version__
+
 
 def _loadImageAndConvert(path):
     # Internal function to load an image and convert for putting on screen
@@ -311,11 +71,12 @@ def _loadImageAndConvert(path):
 
     if image.get_alpha() is None:
         image = image.convert()
-        #print('Calling convert for:', path)
+        # print('Calling convert for:', path)
     else:
         image = image.convert_alpha()
-        #print('Calling convert_alpha for:', path)
+        # print('Calling convert_alpha for:', path)
     return image
+
 
 class PygwidgetsFontManager():
     '''
@@ -323,16 +84,17 @@ class PygwidgetsFontManager():
     render text (e.g., TextButton, TextRadioButton, TextCheckBox, InputText, DisplayText)
     It keeps a cache of loaded fonts as an optimization.
     '''
+
     def __init__(self):
-        pygame.font.init()   # Initialize pygame's font system
+        pygame.font.init()  # Initialize pygame's font system
         self.__fontsLoaded = {}  # dictionary of fonts loaded for current program
 
     def loadFont(self, fontName, fontSize):
-        if fontName is None:   # Request to use system font
+        if fontName is None:  # Request to use system font
             fontKey = 'None_' + str(fontSize)
         else:
             fontKey = fontName.lower() + '_' + str(fontSize)
-            
+
         if fontKey in self.__fontsLoaded:  # if already loaded
             oFont = self.__fontsLoaded[fontKey]
         else:  # not loaded yet
@@ -346,8 +108,10 @@ class PygwidgetsFontManager():
 
         return oFont
 
+
 # create one instance of the font manager
-_PYGWIDGETS_FONT_MANAGER = PygwidgetsFontManager()  
+_PYGWIDGETS_FONT_MANAGER = PygwidgetsFontManager()
+
 
 class PygWidget(ABC):
     """This is the base class (superclass) of ALL pygwidgets - this is an abstract class.
@@ -359,6 +123,7 @@ class PygWidget(ABC):
         - ability to get and set the loc, and get the rect of any widget
 
     """
+
     @abstractmethod
     def __init__(self, nickname):
         """Initializes PygWidget.  Just sets a few key instance variables.
@@ -370,7 +135,7 @@ class PygWidget(ABC):
         self.visible = True
         self.isEnabled = True
         self.nickname = nickname  # any nickname you want to associate with this widget
-        self.dependentsList = [] # list of objects are depend on this object (for enabled/disabled)
+        self.dependentsList = []  # list of objects are depend on this object (for enabled/disabled)
         self.enableDependents = False
         self.rect = pygame.Rect(0, 0, 0, 0)
         self.loc = (0, 0)
@@ -406,7 +171,7 @@ class PygWidget(ABC):
         """Returns the nickname associated with this widget."""
         return self.nickname
 
-    def setLoc(self, loc):   # loc must be a tuple or list of x,y coordinates
+    def setLoc(self, loc):  # loc must be a tuple or list of x,y coordinates
         """Sets a new location for this widget.  loc is a tuple of X and Y values (X, Y)
             It also changes the rect of the widget
 
@@ -487,43 +252,7 @@ class PygWidget(ABC):
         self.moveY(nPixelsY)
 
 
-    # def addDependent(self, oDependent):
-    #     if not (isinstance(oDependent, list)):  # if it is a single object, make it a list
-    #         oDependent = [oDependent]  # so we can iterate
-    #     for thisDependent in oDependent:
-    #         if oDependent not in self.dependentsList:
-    #             self.dependentsList.append(thisDependent)
-    #
-    # def removeDependent(self, oDependent):
-    #     if not (isinstance(oDependent, list)):  # if it is a single object, make it a list
-    #         oDependent = [oDependent]  # so we can iterate
-    #     for thisDependent in oDependent:
-    #         if thisDependent in self.dependentsList:
-    #             self.dependentsList.remove(thisDependent)
-    #
-    # def getDependents(self):
-    #     """ Returns the list of dependent objects """
-    #     return self.dependentsList
-
-
-#
-#
-# BUTTON
-# 
-#
 class PygWidgetsButton(PygWidget):
-    """Base class of TextButton and CustomButton (below) - this is an abstract class.
-
-    You should never instantiate from this class.
-    Instead, instantiate a TextButton or CustomButton, then use the rest of the methods provided.
-    TextButtons are built using the drawing methods in Pygame.
-    CustomButtons are built using your supplied graphics.
-    Details are in comments for those classes below.
-    This code handles showing all the appropriate images of the button (up, down, over, disabled),
-    based on user actions and method calls.
-    Implemented as a 'state machine'
-
-    """
     # Constants used to track the state of the button
     STATE_IDLE = 'idle'
     STATE_ARMED = 'armed'
@@ -545,7 +274,6 @@ class PygWidgetsButton(PygWidget):
         self.soundOnClick = soundOnClick
         self.enterToActivate = enterToActivate
         self.callBack = callBack
-
 
         if self.soundOnClick is not None:
             self.playSoundOnClick = True
@@ -653,7 +381,6 @@ class PygWidgetsButton(PygWidget):
         else:
             self.window.blit(self.surfaceDisabled, self.loc)
 
-
     def __debug(self):
         """This is just for debugging, so we can see what buttons would be drawn.
 
@@ -662,7 +389,6 @@ class PygWidgetsButton(PygWidget):
         self.window.blit(self.surfaceOver, (self.loc[0], 60))
         self.window.blit(self.surfaceDown, (self.loc[0], 110))
         self.window.blit(self.surfaceDisabled, (self.loc[0], 160))
-
 
 
 class TextButton(PygWidgetsButton):
@@ -709,9 +435,9 @@ class TextButton(PygWidgetsButton):
 
     MINIMUM_WIDTH = 100
 
-    def __init__(self, window, loc, text, width=None, height=40, textColor=PYGWIDGETS_BLACK, 
-                 upColor=PYGWIDGETS_NORMAL_GRAY, overColor=PYGWIDGETS_OVER_GRAY, downColor=PYGWIDGETS_DOWN_GRAY, 
-                 fontName=None, fontSize=20, soundOnClick=None, 
+    def __init__(self, window, loc, text, width=None, height=40, textColor=PYGWIDGETS_BLACK,
+                 upColor=PYGWIDGETS_NORMAL_GRAY, overColor=PYGWIDGETS_OVER_GRAY, downColor=PYGWIDGETS_DOWN_GRAY,
+                 fontName=None, fontSize=20, soundOnClick=None,
                  enterToActivate=False, callBack=None, nickname=None):
 
         # Create the button's Surface objects.
@@ -766,7 +492,7 @@ class TextButton(PygWidgetsButton):
         surfaceDown.fill(self.downColor)
         textSurfaceDown = self.font.render(text, True, self.textColor, self.downColor)
         textOffsetByOneRect = pygame.Rect(textRect.left + 1, textRect.top + 1, textRect.width,
-                                                textRect.height)
+                                          textRect.height)
         surfaceDown.blit(textSurfaceDown, textOffsetByOneRect)
         pygame.draw.rect(surfaceDown, PYGWIDGETS_BLACK, pygame.Rect((0, 0, w, h)), 1)  # black border around everything
         pygame.draw.line(surfaceDown, PYGWIDGETS_WHITE, (1, 1), (w - 2, 1))
@@ -880,15 +606,17 @@ class CustomButton(PygWidgetsButton):
         buttonRect = pygame.Rect(loc[0], loc[1], width, height)
 
         # Eliminated this check:
-        #if (width, height) == surfaceDown.get_size() \
-                #== surfaceOver.get_size() == surfaceDisabled.get_size():
-            #pass  # typical case, sizes all match
-        #else:
-            #raise Exception('Custom button files (starting with: ' + up + ') are not all the same size')
+        # if (width, height) == surfaceDown.get_size() \
+        # == surfaceOver.get_size() == surfaceDisabled.get_size():
+        # pass  # typical case, sizes all match
+        # else:
+        # raise Exception('Custom button files (starting with: ' + up + ') are not all the same size')
 
         # call the PygWidgetsButton superclass to finish initialization
         super().__init__(window, loc, surfaceUp, surfaceOver, surfaceDown, surfaceDisabled,
-                                    buttonRect, soundOnClick, nickname, enterToActivate, callBack)
+                         buttonRect, soundOnClick, nickname, enterToActivate, callBack)
+
+
 # Older way to do the same thing:
 #    super(CustomButton, self).__init__(window, loc, surfaceUp, surfaceOver, surfaceDown, surfaceDisabled,
 #                                       buttonRect, soundOnClick, nickname, enterToActivate)
@@ -910,7 +638,7 @@ class PygWidgetsCheckBox(PygWidget):
 
     @abstractmethod
     def __init__(self, window, loc, theRect, \
-                 surfaceOn, surfaceOff, surfaceOnDown, surfaceOffDown,\
+                 surfaceOn, surfaceOff, surfaceOnDown, surfaceOffDown, \
                  surfaceOnDisabled, surfaceOffDisabled, soundOnClick, value, nickname, callBack):
         """Initializer for the PygWidgetsCheckBox base class."""
 
@@ -933,7 +661,7 @@ class PygWidgetsCheckBox(PygWidget):
         # used to track the state of the checkBox
         self.buttonDown = False  # is the checkBox currently pushed down?
         self.mouseOverButton = False  # is the mouse currently hovering over the checkBox?
-        self.lastMouseDownOverButton = False # was the last mouse down event over the mouse button? (Track clicks.)
+        self.lastMouseDownOverButton = False  # was the last mouse down event over the mouse button? (Track clicks.)
         if self.soundOnClick is not None:
             self.playSoundOnClick = True
             if type(self.soundOnClick) is str:  # user specified sound path, load it here
@@ -943,8 +671,6 @@ class PygWidgetsCheckBox(PygWidget):
             self.playSoundOnClick = False
 
         self.mouseIsDown = False
-
-
 
     def handleEvent(self, eventObj):
         """This method should be called every time through the main loop.
@@ -993,7 +719,7 @@ class PygWidgetsCheckBox(PygWidget):
 
         if eventObj.type == MOUSEBUTTONDOWN:
             self.mouseIsDown = True
-            
+
         # mouse up is handled whether or not it was over the checkBox
         doMouseClick = False
         if eventObj.type == MOUSEBUTTONUP:
@@ -1010,7 +736,7 @@ class PygWidgetsCheckBox(PygWidget):
                 clicked = True
                 if self.callBack is not None:
                     self.callBack(self.nickname)  # call the callBack
-                
+
                 if self.playSoundOnClick:
                     self.soundOnClick.play()
 
@@ -1045,8 +771,7 @@ class PygWidgetsCheckBox(PygWidget):
             else:
                 self.window.blit(self.surfaceOffDisabled, self.loc)
 
-
-    def getValue(self):    # This is the key method for getting the current value of the checkbox
+    def getValue(self):  # This is the key method for getting the current value of the checkbox
         """Returns the value of the checkbox  (True/False)."""
         return self.value
 
@@ -1097,8 +822,9 @@ class TextCheckBox(PygWidgetsCheckBox):
     """
 
     def __init__(self, window, loc, text, value=True, fontName=None, fontSize=20, size=16, \
-                 edgeColor=PYGWIDGETS_BLACK, insideColor=PYGWIDGETS_WHITE,\
-                 insideDownColor=PYGWIDGETS_OVER_GRAY, textColor=PYGWIDGETS_BLACK, soundOnClick=None, nickname=None, callBack=None):
+                 edgeColor=PYGWIDGETS_BLACK, insideColor=PYGWIDGETS_WHITE, \
+                 insideDownColor=PYGWIDGETS_OVER_GRAY, textColor=PYGWIDGETS_BLACK, soundOnClick=None, nickname=None,
+                 callBack=None):
 
         self.edgeColor = edgeColor
         self.insideColor = insideColor
@@ -1177,7 +903,8 @@ class TextCheckBox(PygWidgetsCheckBox):
         surfaceOnDisabled = pygame.Surface(boxSize, pygame.SRCALPHA, 32)
         pygame.draw.rect(surfaceOnDisabled, PYGWIDGETS_DISABLED_GRAY, pygame.Rect(0, 0, w, h),
                          0)  # fill the box with disabled color
-        pygame.draw.rect(surfaceOnDisabled, PYGWIDGETS_DISABLED_GRAY, pygame.Rect(0, 0, w, h), 1)  # black border around everything
+        pygame.draw.rect(surfaceOnDisabled, PYGWIDGETS_DISABLED_GRAY, pygame.Rect(0, 0, w, h),
+                         1)  # black border around everything
         pygame.draw.line(surfaceOnDisabled, PYGWIDGETS_BLACK, (0, 0), (w - 2, h - 1), 2)
         pygame.draw.line(surfaceOnDisabled, PYGWIDGETS_BLACK, (0, h), (w - 2, 0), 2)
         if nickname != '':
@@ -1194,12 +921,11 @@ class TextCheckBox(PygWidgetsCheckBox):
             surfaceOffDisabled.blit(textSurfaceGray, (textOffset, 0))
             surfaceOffDisabled = pygame.Surface.convert_alpha(surfaceOffDisabled)  # optimizes blitting
 
-
         super().__init__(window, loc, checkBoxRect, \
-                                             surfaceOn, surfaceOff, \
-                                             surfaceOnDown, surfaceOffDown, \
-                                             surfaceOnDisabled, surfaceOffDisabled, \
-                                             soundOnClick, value, nickname, callBack)
+                         surfaceOn, surfaceOff, \
+                         surfaceOnDown, surfaceOffDown, \
+                         surfaceOnDisabled, surfaceOffDisabled, \
+                         soundOnClick, value, nickname, callBack)
 
 
 class CustomCheckBox(PygWidgetsCheckBox):
@@ -1273,16 +999,15 @@ class CustomCheckBox(PygWidgetsCheckBox):
         else:
             surfaceOffDisabled = _loadImageAndConvert(offDisabled)
 
-
         width, height = surfaceOn.get_size()
         checkBoxRect = pygame.Rect(loc[0], loc[1], width, height)
 
         # call the PygWidgetsCheckBox superclass to initialize
         super().__init__(window, loc, checkBoxRect, \
-                                             surfaceOn, surfaceOff, \
-                                             surfaceOnDown, surfaceOffDown, \
-                                             surfaceOnDisabled, surfaceOffDisabled, \
-                                             soundOnClick, value, nickname, callBack)
+                         surfaceOn, surfaceOff, \
+                         surfaceOnDown, surfaceOffDown, \
+                         surfaceOnDisabled, surfaceOffDisabled, \
+                         soundOnClick, value, nickname, callBack)
 
 
 #
@@ -1304,12 +1029,10 @@ class PygWidgetsRadioButton(PygWidget):
     #     selected radioButton, when it is requested.
     __PygWidgets__Radio__Buttons__Groups__Dicts__ = {}
 
-
     @abstractmethod
     def __init__(self, window, loc, group, buttonRect, \
                  on, off, onDown, offDown, onDisabled, offDisabled, soundOnClick, value, nickname, callBack):
         """Initializer for PygWidgetsRadioButton."""
-
 
         super().__init__(nickname)  # initialize base class
         self.window = window
@@ -1325,12 +1048,12 @@ class PygWidgetsRadioButton(PygWidget):
         self.soundOnClick = soundOnClick
         self.value = value
         self.callBack = callBack
-        self.obj = self   # save a reference to ourselves
+        self.obj = self  # save a reference to ourselves
 
         # used to track the state of the radioButton
-        self.buttonDown = False # is the radioButton currently pushed down?
-        self.mouseOverButton = False # is the mouse currently hovering over the radioButton?
-        self.lastMouseDownOverButton = False # was the last mouse down event over the mouse button? (Track clicks.)
+        self.buttonDown = False  # is the radioButton currently pushed down?
+        self.mouseOverButton = False  # is the mouse currently hovering over the radioButton?
+        self.lastMouseDownOverButton = False  # was the last mouse down event over the mouse button? (Track clicks.)
         if self.soundOnClick is not None:
             self.playSoundOnClick = True
             if type(self.soundOnClick) is str:  # user specified sound path, load it here
@@ -1341,7 +1064,7 @@ class PygWidgetsRadioButton(PygWidget):
 
         self.mouseIsDown = False
 
-        #print('In init:', PygWidgetsRadioButton.__PygWidgets__Radio__Buttons__Groups__Dicts__)
+        # print('In init:', PygWidgetsRadioButton.__PygWidgets__Radio__Buttons__Groups__Dicts__)
         if self.group in PygWidgetsRadioButton.__PygWidgets__Radio__Buttons__Groups__Dicts__:
             # find the group
             thisGroupList = PygWidgetsRadioButton.__PygWidgets__Radio__Buttons__Groups__Dicts__[self.group]
@@ -1352,7 +1075,6 @@ class PygWidgetsRadioButton(PygWidget):
         else:  # new group, not seen before
             # Add a new group, and set the value to a list of the first object
             PygWidgetsRadioButton.__PygWidgets__Radio__Buttons__Groups__Dicts__[self.group] = [self.obj]
-
 
     def handleEvent(self, eventObj):
         """This method should be called every time through the main loop.
@@ -1400,7 +1122,7 @@ class PygWidgetsRadioButton(PygWidget):
 
         if eventObj.type == MOUSEBUTTONDOWN:
             self.mouseIsDown = True
-            
+
         # mouse up is handled whether or not it was over the radioButton
         doMouseClick = False
         if eventObj.type == MOUSEBUTTONUP:
@@ -1421,8 +1143,8 @@ class PygWidgetsRadioButton(PygWidget):
                 # Turn all radio buttons in this group off
                 for radioButton in PygWidgetsRadioButton.__PygWidgets__Radio__Buttons__Groups__Dicts__[self.group]:
                     radioButton.setValue(False)
-                self.setValue(True)   # And turn the current one (the one that was clicked) on
-                
+                self.setValue(True)  # And turn the current one (the one that was clicked) on
+
                 if self.playSoundOnClick:
                     self.soundOnClick.play()
 
@@ -1466,7 +1188,6 @@ class PygWidgetsRadioButton(PygWidget):
             else:
                 self.window.blit(self.surfaceOffDisabled, self.loc)
 
-
     def enable(self, allInGroup=False):
         """Enable the current radio button."""
         super().enable()
@@ -1508,8 +1229,6 @@ class PygWidgetsRadioButton(PygWidget):
             PygWidgetsRadioButton.__PygWidgets__Radio__Buttons__Groups__Dicts__.pop(groupName)
         else:
             raise NameError('Attempt to removeGroup ' + groupName + 'but that group was not created.')
-        
-
 
 
 class TextRadioButton(PygWidgetsRadioButton):
@@ -1557,8 +1276,7 @@ class TextRadioButton(PygWidgetsRadioButton):
     TEXT_OFFSET = 18
 
     def __init__(self, window, loc, group, text, value=False, fontName=None, fontSize=20, \
-                       soundOnClick=None, nickname=None, callBack=None):
-
+                 soundOnClick=None, nickname=None, callBack=None):
 
         radius = TextRadioButton.CIRCLE_DIAMETER // 2
         center = TextRadioButton.CIRCLE_DIAMETER // 2
@@ -1567,7 +1285,7 @@ class TextRadioButton(PygWidgetsRadioButton):
 
         # set up to draw the different states of the radioButton
         self.font = _PYGWIDGETS_FONT_MANAGER.loadFont(fontName, fontSize)
-        self.fontHeight = self.font.size('Anything')[1]   # returns a tuple of (width, height)
+        self.fontHeight = self.font.size('Anything')[1]  # returns a tuple of (width, height)
 
         lineSurfaceBlack = self.font.render(text, True, PYGWIDGETS_BLACK)
         lineSurfaceGray = self.font.render(text, True, PYGWIDGETS_DISABLED_GRAY)
@@ -1604,27 +1322,29 @@ class TextRadioButton(PygWidgetsRadioButton):
         pygame.draw.circle(surfaceOnDown, PYGWIDGETS_BLACK, (center, center), radius, TextRadioButton.CIRCLE_LINE_WIDTH)
         surfaceOnDown.blit(lineSurfaceBlack, (TextRadioButton.TEXT_OFFSET, 0))
         surfaceOnDown = pygame.Surface.convert_alpha(surfaceOnDown)  # optimizes blitting
-        surfaceOffDown = surfaceOnDown   # Copy the same surface as the onDown state
+        surfaceOffDown = surfaceOnDown  # Copy the same surface as the onDown state
 
         # draw the OnDisabled radioButton
         surfaceOnDisabled = pygame.Surface((actualWidth, actualHeight), pygame.SRCALPHA, 32)
-        pygame.draw.circle(surfaceOnDisabled, PYGWIDGETS_DISABLED_GRAY, (center, center), radius, TextRadioButton.CIRCLE_LINE_WIDTH)
+        pygame.draw.circle(surfaceOnDisabled, PYGWIDGETS_DISABLED_GRAY, (center, center), radius,
+                           TextRadioButton.CIRCLE_LINE_WIDTH)
         pygame.draw.circle(surfaceOnDisabled, PYGWIDGETS_DISABLED_GRAY, (center, center), 3, 0)
         surfaceOnDisabled.blit(lineSurfaceGray, (TextRadioButton.TEXT_OFFSET, 0))
         surfaceOnDisabled = pygame.Surface.convert_alpha(surfaceOnDisabled)  # optimizes blitting
 
         # draw the OffDisabled radioButton
         surfaceOffDisabled = pygame.Surface((actualWidth, actualHeight), pygame.SRCALPHA, 32)
-        pygame.draw.circle(surfaceOffDisabled, PYGWIDGETS_DISABLED_GRAY, (center, center), radius, TextRadioButton.CIRCLE_LINE_WIDTH)
+        pygame.draw.circle(surfaceOffDisabled, PYGWIDGETS_DISABLED_GRAY, (center, center), radius,
+                           TextRadioButton.CIRCLE_LINE_WIDTH)
         surfaceOffDisabled.blit(lineSurfaceGray, (TextRadioButton.TEXT_OFFSET, 0))
         surfaceOffDisabled = pygame.Surface.convert_alpha(surfaceOffDisabled)  # optimizes blitting
 
         # call the PygWidgetsRadio superclass to initialize
         super().__init__(window, loc, group, thisRect, \
-                                          surfaceOn, surfaceOff, \
-                                          surfaceOnDown, surfaceOffDown, \
-                                          surfaceOnDisabled, surfaceOffDisabled, \
-                                          soundOnClick, value, nickname, callBack)
+                         surfaceOn, surfaceOff, \
+                         surfaceOnDown, surfaceOffDown, \
+                         surfaceOnDisabled, surfaceOffDisabled, \
+                         soundOnClick, value, nickname, callBack)
 
 
 class CustomRadioButton(PygWidgetsRadioButton):
@@ -1707,10 +1427,11 @@ class CustomRadioButton(PygWidgetsRadioButton):
 
         # call the PygWidgetsRadio superclass to initialize
         super().__init__(window, loc, group, thisRect, \
-                                                surfaceOn, surfaceOff, \
-                                                surfaceOnDown, surfaceOffDown, \
-                                                surfaceOnDisabled, surfaceOffDisabled, \
-                                                soundOnClick, value, nickname, callBack)
+                         surfaceOn, surfaceOff, \
+                         surfaceOnDown, surfaceOffDown, \
+                         surfaceOnDisabled, surfaceOffDisabled, \
+                         soundOnClick, value, nickname, callBack)
+
 
 #
 #
@@ -1760,15 +1481,14 @@ class DisplayText(PygWidget):
     """
 
     def __init__(self, window, loc=(0, 0), value='',
-                 fontName=None, fontSize=18, width=None, height=None, 
+                 fontName=None, fontSize=18, width=None, height=None,
                  textColor=PYGWIDGETS_BLACK, backgroundColor=None,
                  justified='left', nickname=None):
-
 
         super().__init__(nickname)  # initialize base class
         self.window = window
         self.loc = loc
-        self.text = None # special trick so that the call to setValue below will force the creation of the text image
+        self.text = None  # special trick so that the call to setValue below will force the creation of the text image
         self.font = _PYGWIDGETS_FONT_MANAGER.loadFont(fontName, fontSize)
         self.textColor = textColor
         self.backgroundColor = backgroundColor
@@ -1779,17 +1499,16 @@ class DisplayText(PygWidget):
         self.justified = justified
         self.textImage = None
 
-        self.fontHeight = self.font.size('Anything')[1]   # returns a tuple of (width, height)
+        self.fontHeight = self.font.size('Anything')[1]  # returns a tuple of (width, height)
         if (height is None) and (width is None):
             self.useSpecifiedArea = False
         else:
             self.useSpecifiedArea = True
-        self.setValue(value) # Set the initial text for drawing
-
+        self.setValue(value)  # Set the initial text for drawing
 
     def setValue(self, newText):
         """Sets a text value (string) into the text field."""
-        newText = str(newText)  #  attempt to convert to string (might be int or float ...)
+        newText = str(newText)  # attempt to convert to string (might be int or float ...)
         if self.text == newText:
             return  # nothing to change
         self.text = newText  # save the new text
@@ -1832,7 +1551,6 @@ class DisplayText(PygWidget):
                     theLeft = actualWidth - thisSurfaceWidth
                 self.textImage.blit(lineSurface, (theLeft, thisLineTop))
             thisLineTop = thisLineTop + heightOfOneLine
-
 
         if self.useSpecifiedArea:
             # Fit the text image into a user specified area, may truncate the text off left, right, or bottom
@@ -1948,7 +1666,7 @@ class InputText(PygWidget):
     KEY_REPEAT_DELAY = 500  # ms before starting to repeat
     KEY_REPEAT_RATE = 50  # ms between repeating keys
 
-    def __init__(self, window, loc, value='', fontName=None, fontSize=24, width=200, 
+    def __init__(self, window, loc, value='', fontName=None, fontSize=24, width=200,
                  textColor=PYGWIDGETS_BLACK, backgroundColor=PYGWIDGETS_WHITE, focusColor=PYGWIDGETS_BLACK,
                  initialFocus=False, nickname=None, callBack=None, mask=None, keepFocusOnSubmit=False):
 
@@ -1984,11 +1702,10 @@ class InputText(PygWidget):
         self.cursorSurface.fill(self.textColor)
         self.cursorPosition = len(self.text)  # put the cursor at the end of the initial text
         self.cursorVisible = False
-        self.cursorSwitchMs = 500 # Blink every half-second
+        self.cursorSwitchMs = 500  # Blink every half-second
         self.cursorMsCounter = 0
-        self.cursorLoc = [self.loc[0], self.loc[1]]   # this is a list because element 0 will change as the user edits
+        self.cursorLoc = [self.loc[0], self.loc[1]]  # this is a list because element 0 will change as the user edits
         self.clock = pygame.time.Clock()
-
 
         # Create one surface, blit the text into it during _updateImage
         # Special flags are needed to set the background alpha as transparent
@@ -2011,7 +1728,6 @@ class InputText(PygWidget):
             lineSurface = self.font.render(maskedText, True, self.textColor)
         self.textImage.blit(lineSurface, (0, 0))
 
-
     def handleEvent(self, event):
         """This method should be called every time through the main loop.
 
@@ -2031,12 +1747,12 @@ class InputText(PygWidget):
         if not self.visible:
             return False
 
-        if (event.type == pygame.MOUSEBUTTONDOWN) and (event.button == 1): # user clicked
+        if (event.type == pygame.MOUSEBUTTONDOWN) and (event.button == 1):  # user clicked
             theX, theY = event.pos
 
             if self.imageRect.collidepoint(theX, theY):
                 if not self.focus:
-                    self.focus = True   # give this field focus
+                    self.focus = True  # give this field focus
                     pygame.key.set_repeat(InputText.KEY_REPEAT_DELAY, InputText.KEY_REPEAT_RATE)
                 else:
                     # Field already has focus, must position the cursor where the user clicked
@@ -2052,7 +1768,7 @@ class InputText(PygWidget):
                             if thisCharOffset >= nPixelsFromLeft:
                                 self.cursorPosition = thisCharNum  # Found the proper position for the cursor
                                 break
-                    self.cursorVisible = True # Show the cursor at the click point
+                    self.cursorVisible = True  # Show the cursor at the click point
 
             else:
                 self.focus = False
@@ -2067,7 +1783,7 @@ class InputText(PygWidget):
             if currentKey in (pygame.K_RETURN, pygame.K_KP_ENTER):
                 self.focus = self.keepFocusOnSubmit  # defaults to False - lose focus with Enter/Return
                 if not self.focus:
-                    pygame.key.set_repeat(0) # turn off repeating characters
+                    pygame.key.set_repeat(0)  # turn off repeating characters
                 self._updateImage()
 
                 if self.callBack is not None:
@@ -2089,9 +1805,9 @@ class InputText(PygWidget):
                 self.cursorPosition = max(self.cursorPosition - 1, 0)
                 self._updateImage()
 
-            elif currentKey == pygame.K_DELETE: # forward delete key
+            elif currentKey == pygame.K_DELETE:  # forward delete key
                 self.text = self.text[:self.cursorPosition] + \
-                        self.text[self.cursorPosition + 1:]
+                            self.text[self.cursorPosition + 1:]
                 self._updateImage()
 
             elif currentKey == pygame.K_RIGHT:
@@ -2112,7 +1828,7 @@ class InputText(PygWidget):
                 pass
 
             elif currentKey == pygame.K_TAB:
-                if self.oNextFieldOnTab is not None: # Move focus to a different field
+                if self.oNextFieldOnTab is not None:  # Move focus to a different field
                     self.removeFocus()
                     self.oNextFieldOnTab.giveFocus()
 
@@ -2126,13 +1842,12 @@ class InputText(PygWidget):
                 # If no special key is pressed, add unicode of key to input_string
                 unicodeOfKey = event.unicode  # remember for potential repeating key
                 self.text = self.text[:self.cursorPosition] + \
-                                    unicodeOfKey + \
-                                    self.text[self.cursorPosition:]
+                            unicodeOfKey + \
+                            self.text[self.cursorPosition:]
                 self.cursorPosition = self.cursorPosition + len(unicodeOfKey)
                 self._updateImage()
 
         return False  # means: handled key, nothing for client code to do
-
 
     def draw(self):
         """Draws the Text in the window."""
@@ -2155,14 +1870,13 @@ class InputText(PygWidget):
 
             if self.cursorVisible:
                 cursorOffset = self.font.size(self.text[:self.cursorPosition])[0]
-                if self.cursorPosition > 0: # Try to get between characters
+                if self.cursorPosition > 0:  # Try to get between characters
                     cursorOffset = cursorOffset - 1
                 if cursorOffset < self.width:  # if the loc is within the text area, draw it
                     self.cursorLoc[0] = self.loc[0] + cursorOffset
                     self.window.blit(self.cursorSurface, self.cursorLoc)
 
             self.clock.tick()
-
 
     # Helper methods
     def getValue(self):
@@ -2217,6 +1931,7 @@ class InputText(PygWidget):
 
         self.oNextFieldOnTab = oNextFieldOnTab
 
+
 #
 #
 # DRAGGER
@@ -2256,7 +1971,8 @@ class Dragger(PygWidget):
         | callBack - a function or method of an object to call back when done dragging (defaults to None)
     Raises FileNotFoundError if a file at a given path cannot be found
 
-    """    
+    """
+
     def __init__(self, window, loc, up, down=None, over=None, disabled=None, nickname=None, callBack=None):
 
         super().__init__(nickname)  # initialize base class
@@ -2293,7 +2009,6 @@ class Dragger(PygWidget):
         self.deltaX = 0
         self.deltaY = 0
 
-
     def handleEvent(self, eventObj):
         """This method should be called every time through the main loop.
 
@@ -2312,7 +2027,7 @@ class Dragger(PygWidget):
         if not self.visible:
             return False
 
-        if eventObj.type not in (MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN) :
+        if eventObj.type not in (MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN):
             # The dragger only cares about mouse-related events
             return False
 
@@ -2373,7 +2088,7 @@ class Dragger(PygWidget):
             return
 
         if self.isEnabled:
-        
+
             # Draw the dragger's current appearance to the window.
             if self.dragging:
                 self.window.blit(self.surfaceDown, self.rect)
@@ -2384,7 +2099,6 @@ class Dragger(PygWidget):
                     self.window.blit(self.surfaceUp, self.rect)
         else:
             self.window.blit(self.surfaceDisabled, self.rect)
-
 
 
 #
@@ -2416,6 +2130,7 @@ class Image(PygWidget):
     Raises FileNotFoundError if a file at a given path cannot be found
 
     """
+
     def __init__(self, window, loc, pathOrLoadedImage, nickname=None):
 
         super().__init__(nickname)  # initialize base class
@@ -2436,9 +2151,8 @@ class Image(PygWidget):
         # but that failed when used inside the "ImageCollection" subclas, because it was
         # calling the "replace" method inside the ImageCollection class.
         # This solution allows both the Image and ImageCollection classes to have a method named "replace"
-        Image.replace(self, pathOrLoadedImage)      # creates self.originalImage
+        Image.replace(self, pathOrLoadedImage)  # creates self.originalImage
         self.image = self.originalImage.copy()
-
 
     def replace(self, newPathOrImage):
         """replace the image with a different image.
@@ -2448,20 +2162,18 @@ class Image(PygWidget):
             |                  if you specify the empty string(''), the image will go away
 
         """
-        if newPathOrImage == '':  #Create an empty image
+        if newPathOrImage == '':  # Create an empty image
             self.rect = pygame.Rect(0, 0, 0, 0)
             size = self.rect.size
             self.originalImage = pygame.Surface(size)
-            
+
         elif isinstance(newPathOrImage, str):
             self.originalImage = _loadImageAndConvert(newPathOrImage)
 
         else:  # must be an image
             self.originalImage = newPathOrImage
-            
+
         self.image = self.originalImage.copy()
-
-
 
         # Set the rect of the image to appropriate values - using the current image
         # then scale and rotate
@@ -2502,14 +2214,14 @@ class Image(PygWidget):
     def flipHorizontal(self):
         """ flips an image object horizontally
         """
-        
+
         self.flipH = not self.flipH
         self._transmogrophy(self.angle, self.percent, self.scaleFromCenter, self.flipH, self.flipV)
 
     def flipVertical(self):
         """ flips an image object vertically
         """
-        
+
         self.flipV = not self.flipV
         self._transmogrophy(self.angle, self.percent, self.scaleFromCenter, self.flipH, self.flipV)
 
@@ -2524,7 +2236,6 @@ class Image(PygWidget):
         self.angle = self.angle + nDegrees
         self._transmogrophy(self.angle, self.percent, self.scaleFromCenter, self.flipH, self.flipV)
 
-
     def rotateTo(self, angle):
         """rotates the image to a given angle
 
@@ -2534,7 +2245,6 @@ class Image(PygWidget):
 
         """
         self._transmogrophy(angle, self.percent, self.scaleFromCenter, self.flipH, self.flipV)
-
 
     def scale(self, percent, scaleFromCenter=True):
         """scales an Image object
@@ -2550,7 +2260,6 @@ class Image(PygWidget):
 
         """
         self._transmogrophy(self.angle, percent, scaleFromCenter, self.flipH, self.flipV)
-
 
     def _transmogrophy(self, angle, percent, scaleFromCenter, flipH, flipV):
         """
@@ -2598,13 +2307,11 @@ class Image(PygWidget):
 
         self.setLoc((self.rect.left, self.rect.top))
 
-
     def getAngle(self):
         return self.angle
 
     def getSize(self):
         return self.image.get_size()
-
 
     def draw(self, scrollOffsetX=0, scrollOffsetY=0):
         """Draws the image at the given location."""
@@ -2666,7 +2373,6 @@ class ImageCollection(Image):
 
     def __init__(self, window, loc, imagesDict, startImageKey, path='', nickname=None):
 
-
         self.window = window
         self.loc = loc
         self.percent = 100
@@ -2679,9 +2385,8 @@ class ImageCollection(Image):
 
             else:
                 image = pathOrLoadedImage
-            
-            self.imagesDict[key] = image
 
+            self.imagesDict[key] = image
 
         # Create an empty image and associate it with empty string as the key
         # This allows users to use the empty string to show no image
@@ -2703,7 +2408,6 @@ class ImageCollection(Image):
         self.scaleFromCenter = True
         self.originalImage = self.imagesDict[startImageKey]
         self.replace(self.currentKey)
-
 
     def replace(self, key):
         """Selects a different image to be shown.
@@ -2796,7 +2500,6 @@ class PygAnimation(PygWidget):
 
         return True
 
-
     def start(self):
         """Starts an animation playing."""
         if self.state == PYGWIDGETS_ANIMATION_PLAYING:
@@ -2888,7 +2591,7 @@ class PygAnimation(PygWidget):
             if self.showFirstImageAtEnd:
                 self.index = 0  # show first image
             else:
-                 self.index = len(self.imagesList) - 1  # show last image
+                self.index = len(self.imagesList) - 1  # show last image
 
         elif self.elapsed > self.nextElapsedThreshold:
             # Time to move on to next picture
@@ -2928,15 +2631,14 @@ class PygAnimation(PygWidget):
             theRect[1] = self.loc[1]
             return theRect
 
-### For this to work correctly, I need to figure out the matching elapsedTime
-### Would be nice to add 'endImageIndex', to play a subAnimation.
-##    def jumpTo(self, imageIndex):
-##        """Returns the rect of the current animation image
-##        """
-##        if (imageIndex < 0) or (imageIndex >= len(self.imagesList)):
-##            raise IndexError('Invalid index in Animation.jumpTo:', str(index))
-##        self.index = imageIndex
-                           
+    ### For this to work correctly, I need to figure out the matching elapsedTime
+    ### Would be nice to add 'endImageIndex', to play a subAnimation.
+    ##    def jumpTo(self, imageIndex):
+    ##        """Returns the rect of the current animation image
+    ##        """
+    ##        if (imageIndex < 0) or (imageIndex >= len(self.imagesList)):
+    ##            raise IndexError('Invalid index in Animation.jumpTo:', str(index))
+    ##        self.index = imageIndex
 
     def setLoop(self, trueOrFalse):
         """Sets a value telling the animation if it should loop or not.
@@ -3144,8 +2846,8 @@ class SpriteSheetAnimation(PygAnimation):
             useSameDuration = False  # this is a list of durations
             if nImages != len(durationOrDurationsList):
                 raise ValueError('Number of images ' + str(nImages) + \
-                                ' and number of duration times ' + str(len(durationOrDurationsList)) + \
-                                ' do not match.')
+                                 ' and number of duration times ' + str(len(durationOrDurationsList)) + \
+                                 ' do not match.')
 
         else:
             useSameDuration = True  # this is a single duration

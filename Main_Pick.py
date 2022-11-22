@@ -1,6 +1,8 @@
 import sys
+
 import pygame
 from pygame import QUIT
+
 from Game import Game
 
 WINDOW_WIDTH = 470
